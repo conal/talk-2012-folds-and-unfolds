@@ -1,0 +1,17 @@
+*~
+Junk*
+Old*
+Stuff
+Unused/
+
+*.aux
+*.log
+*.nav
+*.out
+*.pdf
+*.ptb
+*.snm
+*.tex
+*.toc
+
+web-token

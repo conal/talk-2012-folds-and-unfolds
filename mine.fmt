@@ -1,0 +1,70 @@
+%% Misc lhs2TeX directives
+
+%format :-* = "\multimap"
+
+%format *** = "\mathbin{\times}"
+%format &&& = "\mathbin{\smalltriangleup}"
+%format ||| = "\mathbin{\smalltriangledown}"
+
+%% %format *** = "\symThree{*}"
+%% %format &&& = "\symThree{\&}"
+%% %format ||| = "\symThree{|}"
+
+%% %format Real = "\Re"
+%format Real = " \mathbb{R} "
+%format R  = Real
+
+%format Rm = R "^ m"
+%format Rn = R "^ n"
+
+%% %format * = " \times "
+
+%format :* = " \times "
+
+%% optional double-dollar spelling, to avoid $ confusing emacs latex-mode.
+%format <$$> = <$>
+
+%format <$> = "\mathbin{<\!\!\!\$\!\!\!>}"
+
+% %format :->: = "\mathrel{{\to}_{M}}"
+%format :->: = "\mathrel{{\to}^{M}}"
+% %format :->: = "\mathrel{\stackrel{M}{\to}}"
+
+%format :&& = "\mathbin{:\!\!" &&& "}"
+
+%format VS2 = "VS_2"
+%format VS3 = "VS_3"
+%format VS4 = "VS_4"
+
+%format (apply (t)) = "\db{" t "}"
+
+
+% Got from Andres L:
+\newcommand{\calculationcomments}{%
+  \let\onelinecomment=\onelinecommentchars
+  \def\commentbegin{\quad\{ }%
+  \def\commentend{\}}%
+}
+\calculationcomments
+
+\newcommand{\mplus}{\mathbin{+}}
+% \newcommand{\mplus}{\mathbin{\hat{+}}}
+
+%format ^+^ = "\mplus"
+%format *^ = " \cdot "
+
+%format zeroV = 0
+%format negateV = negate
+
+%format ~> = "\leadsto"
+
+%format Minf = "- \infty"
+
+%% hack: add missing space, e.g., before "{" in data type decl
+%format SPACE = "\ {}"
+
+% \newcommand{\mmult}{\odot}
+\newcommand{\mmult}{\bullet}
+%format .@ = "\mmult"
+
+% \renewcommand{\onelinecomment}{\it}
