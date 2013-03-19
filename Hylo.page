@@ -1,0 +1,354 @@
+---
+title: Folds and unfolds all around us
+...
+
+ <!-- ![Origami star](pictures/origami/star-00400.jpg)\  -->
+
+ <center>
+![](pictures/origami/assortment.png)
+ </center>
+
+ <!-- References -->
+
+[Origami programming]: http://www.cs.ox.ac.uk/publications/publication2335-abstract.html "paper by Jeremy Gibbons in The Fun of Programming"
+
+> {-# LANGUAGE DeriveFunctor, TypeOperators #-}
+> {-# OPTIONS_GHC -Wall #-}
+>
+> module Hylo where
+
+Sum & product type synonyms:
+
+> infixl 7 :*
+> infixl 6 :+
+> 
+> type (:+) = Either
+> type (:*) = (,)
+
+ <!-- -->
+
+Recursive functional programming
+================================
+
+On numbers:
+
+> fact0 :: Integer -> Integer
+> fact0 0 = 1
+> fact0 n = n * fact0 (n - 1)
+
+On lists:
+
+< data [a] = [] | a : [a]
+
+> productL :: Num a => [a] -> a
+> productL []     = 1
+> productL (a:as) = a * productL as
+>
+> rangeL :: (Ord a, Enum a) => a -> a -> [a]
+> rangeL l h | l >= h     = []
+>            | otherwise = l : rangeL (succ l) h
+
+On (binary leaf) trees:
+
+> data T a = L a | B (T a) (T a)
+
+> productT :: Num a => T a -> a
+> productT (L a)   = a
+> productT (B s t) = productT s * productT t
+>
+> rangeT :: Integral a => a -> a -> T a
+> rangeT l h | l == h     = L l
+>            | otherwise = B (rangeT l m) (rangeT (m+1) h)
+>  where m = (l+h) `div` 2
+
+Cata, Ana, Hylo
+===============
+
+ <blockquote>
+
+In a sense, recursive equations are the "assembly language" of functional programming, and direct recursion the `goto`.
+As computer scientists discovered in the 1960s with structured programming, it is better to identify common patterns of use of such too-powerful tools, and capture these patterns as new constructions and abstractions.
+
+... one can discover general properties of the abstraction once and for all, and infer those properties of the specific instances for free.
+
+ </blockquote>
+
+Jeremy Gibbons--*[Origami programming]*
+
+Catamorphisms (folds)
+---------------------
+
+"*Cata*" = downward.
+Contract a structure *down* to a single value.
+
+For lists:
+
+> foldL :: (a -> b -> b) -> b -> ([a] -> b)
+> foldL _ b []     = b
+> foldL f b (a:as) = f a (foldL f b as)
+
+< sumL     = foldL (+) 0
+< productL = foldL (*) 1
+< reverseL = foldL (\ a r -> r ++ [a]) []
+
+For trees:
+
+> foldT :: (b -> b -> b) -> (a -> b) -> (T a -> b)
+> foldT _ l (L a)   = l a
+> foldT b l (B s t) = b (foldT b l s) (foldT b l t)
+
+< productT = foldT (*) id
+
+Anamorphisms (unfolds)
+----------------------
+
+"*Ana*" = upward.
+Expand a structure *up* to a single value.
+
+Lists:
+
+> unfoldL :: (b -> Maybe (a :* b)) -> (b -> [a])
+> unfoldL f b = case f b of
+>                 Just (a,b') -> a : unfoldL f b'
+>                 Nothing     -> []
+
+> rangeL' :: (Ord a, Enum a) => a :* a -> [a]
+> rangeL' = unfoldL g
+>  where
+>    g (l,h) | l >= h    = Nothing
+>            | otherwise = Just (l, (succ l, h))
+
+Trees:
+
+> unfoldT :: (b -> a :+ b :* b) -> (b -> T a)
+> unfoldT g x = case g x of
+>                 Left a      -> L a
+>                 Right (c,d) -> B (unfoldT g c) (unfoldT g d)
+
+> rangeT' :: Integral a => a :* a -> T a
+> rangeT' = unfoldT g
+>  where
+>    g (l,h) | l == h     = Left l
+>            | otherwise = Right ((l,m) , (m+1,h))
+>      where m = (l+h) `div` 2
+
+
+Hylomorphisms (unfold + fold)
+=============================
+
+Maybe you've seen this definition of factorial:
+
+< fact1 n = product [1 .. n]
+
+*General theme:* replace control structures by data structures and standard combining forms (higher-order functions).
+
+Equivalently,
+
+> fact1 :: (Num a, Enum a, Ord a) => a -> a
+> fact1 = productL . rangeL 1
+
+*Note*: composition of unfold (`rangeL`) and fold `productL`.
+
+This combination is called a "hylomorphism".
+(Aristotle: substance combines matter and form.)
+
+More explicitly hylomorphic:
+
+> fact2 :: Integer -> Integer
+> fact2 = foldL (*) 1 . unfoldL g
+>  where
+>    g 0 = Nothing
+>    g n = Just (n,n-1)
+
+Naïve Fibonacci in recursive form ("assembly language"):
+
+> fib0 :: Integer -> Integer
+> fib0 0 = 0
+> fib0 1 = 1
+> fib0 n = fib0 (n-1) + fib0 (n-2)
+
+Use the same trick as `fact`.
+Build argument *up* to a data structure and *down* to a result.
+What data structure?
+
+> fibT1 :: Integer -> T Integer
+> fibT1 0 = L 0
+> fibT1 1 = L 1
+> fibT1 n = B (fibT1 (n-1)) (fibT1 (n-2))
+>
+> sumT :: Num a => T a -> a
+> sumT = foldT (+) id
+> 
+> fib1 :: Integer -> Integer
+> fib1 = sumT . fibT1
+
+More explicitly hylomorphic:
+
+> fib2 :: Integer -> Integer
+> fib2 = foldT (+) id . unfoldT g
+>  where
+>    g 0 = Left 0
+>    g 1 = Left 1
+>    g n = Right (n-1,n-2)
+
+Generalizing folds and unfolds
+==============================
+
+Summary of `fold` & `unfold`:
+
+< foldL   :: (a -> b -> b) -> b -> ([a] -> b)
+<
+< unfoldL :: (b -> Maybe (a :* b)) -> (b -> [a])
+<
+< foldT   :: (b -> b -> b) -> (a -> b) -> (T a -> b)
+<
+< unfoldT :: (b -> a :+ b :* b) -> (b -> T a)
+
+Why the asymmetry?
+
+Play with type isomorphisms:
+
+< foldL :: (a -> b -> b) -> b        -> ([a] -> b)
+<       =~ (a :* b -> b) -> b        -> ([a] -> b)
+<       =~ (a :* b -> b) -> (() -> b) -> ([a] -> b)
+<       =~ (a :* b -> b) :* (() -> b) -> ([a] -> b)
+<       =~ ((a :* b :+ ()) -> b)     -> ([a] -> b)
+<       =~ (Maybe (a :* b) -> b)    -> ([a] -> b)
+
+Why `Maybe (a :* b)`?
+Because
+
+< [a] =~ Maybe (a :* (Maybe (a :* (Maybe (a :* (...))))))
+<     =~ Fix (/\ b -> Maybe (a :* b))
+
+We can give 'foldL' a more standard interface:
+
+> foldLF :: (Maybe (a :* b) -> b) -> ([a] -> b)
+> foldLF h = foldL (curry (h . Just)) (h Nothing)
+
+Now the duality emerges:
+
+< unfoldL :: (b -> Maybe (a :* b)) -> (b -> [a])
+< foldLF  :: (Maybe (a :* b) -> b) -> ([a] -> b)
+
+Similarly for tree fold & unfold.
+
+General regular algebraic data types
+------------------------------------
+
+Generic recursive algebraic data type built up from "base functor" `f`:
+
+> newtype Fix f = Roll { unRoll :: f (Fix f) }
+> 
+> unfold :: Functor f => (a -> f a) -> (a -> Fix f)
+> unfold g = q where q = Roll . fmap q . g
+> 
+> fold :: Functor f => (f b -> b) -> (Fix f -> b)
+> fold h = p where p = h . fmap p . unRoll
+> 
+> hylo :: Functor f => (f b -> b) -> (a -> f a) -> (a -> b)
+> hylo h g = fold h . unfold g
+
+Types in the definitions of `unfold` and `fold`:
+
+< g                   :: a -> f a
+< fmap q              :: f a -> f (Fix f)
+< Roll                :: f (Fix f) -> Fix f
+< Roll . fmap q . g   :: a -> Fix f
+<
+< unRoll              :: Fix f -> f (Fix f)
+< fmap p              :: f (Fix f) -> f b
+< h                   :: f b -> b
+< h . fmap p . unRoll :: Fix f -> b
+
+*[To do: pictures]*
+
+Now look at `hylo`:
+
+<   hylo h g
+< == {- definition of hylo -}
+<   fold h . unfold g
+< == {- definitions of fold and unfold -}
+<   h . fmap (fold h) . unRoll . Roll . fmap (unfold g) . g
+< == {- unRoll and Roll are inverses -}
+<   h . fmap (fold h) . fmap (unfold g) . g
+< == {- Functor law: fmap v . fmap u == fmap (v . u) -}
+<   h . fmap (fold h . unfold g) . g
+< == {- definition of hylo -}
+<   h . fmap (hylo h g) . g
+
+Or
+
+< hylo h g = hy where r = h . fmap hy . g
+
+We now have a directly recursive form: unpack with `g` (from `a` to `f a`), recursively transform inside the `f` (from `f a` to `f b`), and repack with `h` (from `f b` to `b`).
+
+These transformed definitions all type-check in GHCi.
+The directly recursive `hylo` applies in a much more general categorical setting.
+
+We can redefine `fold` & `unfold` via `hylo`:
+
+> unfold' :: Functor f => (a -> f a) -> (a -> Fix f)
+> unfold' g = hylo Roll g
+> 
+> fold' :: Functor f => (f b -> b) -> (Fix f -> b)
+> fold' h = hylo h unRoll
+
+Examples redone via Fix and hylo
+--------------------------------
+
+List base functor:
+
+> data LF a t = NilF | ConsF a t deriving Functor
+> 
+> type L' a = Fix (LF a)
+
+Factorial via `hylo`:
+
+> fact3 :: Integer -> Integer
+> fact3 = hylo h g
+>  where
+>    g :: Integer -> LF Integer Integer
+>    g 0 = NilF
+>    g n = ConsF n (n-1)
+>    h :: LF Integer Integer -> Integer
+>    h NilF        = 1
+>    h (ConsF n u) = n * u
+
+Tree base functor:
+
+> data TF a t = LF a | BF t t deriving Functor
+> 
+> type T' a = Fix (TF a)
+
+Fibonacci via `hylo`:
+
+> fib3 :: Integer -> Integer
+> fib3 = hylo h g
+>  where
+>    g :: Integer -> TF Integer Integer
+>    g 0 = LF 0
+>    g 1 = LF 1
+>    g n = BF (n-1) (n-2)
+>    h :: TF Integer Integer -> Integer
+>    h (LF n)   = n
+>    h (BF u v) = u + v
+
+Thanks to associativity of multiplication, we can also compute factorials with a balanced tree, which leads to log depth (ideal parallel time).
+
+> type Range = Integer :* Integer
+
+> fact5 :: Integer -> Integer
+> fact5 n = hylo h g (1,n)
+>  where
+>    g :: Range -> TF Integer Range
+>    g (lo,hi) =
+>      case lo `compare` hi of
+>        GT -> LF 1
+>        EQ -> LF lo
+>        LT -> let mid = (lo+hi) `div` 2 in
+>                BF (lo,mid) (mid+1,hi)
+>    h :: TF Integer Integer -> Integer
+>    h (LF i)   = i
+>    h (BF u v) = u * v
+
