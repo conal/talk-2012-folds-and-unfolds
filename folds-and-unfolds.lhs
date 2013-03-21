@@ -192,6 +192,8 @@ Trees:
 
 }\framet{Factorial again}{
 
+Assembly language:
+
 < fact0 0 = 1
 < fact0 n = n * fact0 (n - 1)
 
@@ -369,31 +371,20 @@ Let's revisit our examples.
 
 Much more parallel-friendly!
 
-}\framet{Another look}{
+}\framet{Another look and |fold| and |unfold|}{
 
-%% \fig{fold-diag}
-%% \fig{unfold-diag}
-%% \fig{hylo-diag}
-
-%% \tikzset{global scale/.style={
-%%     scale=0.5,
-%%     every node/.style={scale=0.5}
-%%   }
-%% }
+\begin{center}
 
 \begin{tikzcd}[column sep=8ex]
   \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
   \FixF \uar{\unRoll} \rar{\fold h} \& b
 \end{tikzcd}
+\hspace{4ex}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \dar{\Roll} \\
   a \uar{g} \rar{\unfold g} \& \FixF
 \end{tikzcd}
-\begin{tikzcd}[column sep=10ex]
-  f\, a \rar{\fmapp{\hylo h\, g}} \rar{} \& f\, b \dar{h} \\
-  a \uar{g} \rar{\hylo h\, g} \rar{} \& b
-\end{tikzcd}
-
+\end{center}
 
 < newtype Fix f = Roll { unRoll :: f (Fix f) }
 < 
@@ -402,25 +393,63 @@ Much more parallel-friendly!
 < 
 < unfold :: Functor f => (a -> f a) -> (a -> Fix f)
 < unfold g = Roll . fmap (unfold g) . g
-< 
-< hylo :: Functor f => (f b -> b) -> (a -> f a) -> (a -> b)
-< hylo h g = fold h . unfold g
 
-}\framet{Optimizing |hylo|}{
+}\framet{Another look and |hylo|}{
 
-<   hylo h g
-< == {- definition of hylo -}
-<   fold h . unfold g
-< == {- definitions of fold and unfold -}
-<   h . fmap (fold h) . unRoll . Roll . fmap (unfold g) . g
-< == {- unRoll and Roll are inverses -}
-<   h . fmap (fold h) . fmap (unfold g) . g
-< == {- Functor law: fmap v . fmap u == fmap (v . u) -}
-<   h . fmap (fold h . unfold g) . g
-< == {- definition of hylo -}
-<   h . fmap (hylo h g) . g
+\vspace{8ex}
 
-Directly recursive.
+\begin{center}
+\begin{tikzcd}[column sep=10ex]
+  a \rar{\unfold g} \& \FixF \rar{\fold h} \& b
+\end{tikzcd}
+\end{center}
+
+Definition of |hylo|.
+
+}\framet{Another look and |hylo|}{
+
+\begin{center}
+\begin{tikzcd}[column sep=10ex]
+  \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \dar[shift left=0.7ex]{\Roll} \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
+  a \uar{g} \rar{\unfold g} \& \FixF \uar[shift left=0.7ex]{\unRoll} \rar{\fold h} \& b
+\end{tikzcd}
+\end{center}
+
+By definitions of |fold| and |unfold|.
+
+}\framet{Another look and |hylo|}{
+
+\begin{center}
+\begin{tikzcd}[column sep=10ex]
+  \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
+  a \uar{g} \rar{\unfold g} \& \FixF \rar{\fold h} \& b
+\end{tikzcd}
+\end{center}
+
+Since |unRoll| and |Roll| are inverses.
+
+}\framet{Another look and |hylo|}{
+
+\begin{center}
+\begin{tikzcd}[column sep=20ex]
+  \F a \rar{\fmapp{\fold h \comp \unfold g}} \rar{} \& \F b \dar{h} \\
+  a \uar{g} \rar{\fold h \comp \unfold g} \rar{} \& b
+\end{tikzcd}
+\end{center}
+
+By the |Functor| law: |fmap v . fmap u == fmap (v . u)|.
+
+}\framet{Another look and |hylo|}{
+
+\begin{center}
+\begin{tikzcd}[column sep=12ex]
+  \F a \rar{\fmapp{\hylo h g}} \rar{} \& \F b \dar{h} \\
+  a \uar{g} \rar{\hylo h g} \rar{} \& b
+\end{tikzcd}
+\end{center}
+
+Definition of |hylo|.
+Directly recursive!
 
 }\framet{|fold| and |unfold| via |hylo|}{
 
