@@ -377,12 +377,12 @@ Much more parallel-friendly!
 
 \begin{tikzcd}[column sep=8ex]
   \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  \FixF \uar{\unRoll} \rar{\fold h} \& b
+  \FixF \uar{\unRoll} \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \hspace{4ex}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \dar{\Roll} \\
-  a \uar{g} \rar{\unfold g} \& \FixF
+  a \uar{g} \rar[dashed]{\unfold g} \& \FixF
 \end{tikzcd}
 \end{center}
 
@@ -393,6 +393,16 @@ Much more parallel-friendly!
 < 
 < unfold :: Functor f => (a -> f a) -> (a -> Fix f)
 < unfold g = Roll . fmap (unfold g) . g
+
+}\framet{Another look and |hylo|}{
+
+\vspace{8ex}
+
+\begin{center}
+\begin{tikzcd}[column sep=10ex]
+  a \rar{\hylo h\, g} \& b
+\end{tikzcd}
+\end{center}
 
 }\framet{Another look and |hylo|}{
 
@@ -443,8 +453,8 @@ By the |Functor| law: |fmap v . fmap u == fmap (v . u)|.
 
 \begin{center}
 \begin{tikzcd}[column sep=12ex]
-  \F a \rar{\fmapp{\hylo h g}} \rar{} \& \F b \dar{h} \\
-  a \uar{g} \rar{\hylo h g} \rar{} \& b
+  \F a \rar{\fmapp{\hylo h\, g}} \rar{} \& \F b \dar{h} \\
+  a \uar{g} \rar{\hylo h\, g} \rar{} \& b
 \end{tikzcd}
 \end{center}
 
