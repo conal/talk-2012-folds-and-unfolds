@@ -17,9 +17,10 @@
 %format Rm = R "^ m"
 %format Rn = R "^ n"
 
-%% %format * = " \times "
+%format * = " \times "
 
 %format :* = " \times "
+%format :+ = " + "
 
 %% optional double-dollar spelling, to avoid $ confusing emacs latex-mode.
 %format <$$> = <$>
@@ -68,3 +69,37 @@
 %format .@ = "\mmult"
 
 % \renewcommand{\onelinecomment}{\it}
+
+%format =~ = "\simeq"
+%format /\ = "\Lambda"
+
+%format fact0 = "\Varid{fact_0}"
+%format fact1 = "\Varid{fact_1}"
+%format fact2 = "\Varid{fact_2}"
+%format fact3 = "\Varid{fact_3}"
+%format fact4 = "\Varid{fact_4}"
+
+%format fib0 = "\Varid{fib_0}"
+%format fib1 = "\Varid{fib_1}"
+%format fib2 = "\Varid{fib_2}"
+%format fib3 = "\Varid{fib_3}"
+%format fib4 = "\Varid{fib_4}"
+
+%format foldL = "\Varid{fold_L}"
+%format unfoldL = "\Varid{unfold_L}"
+%format foldT = "\Varid{fold_T}"
+%format unfoldT = "\Varid{unfold_T}"
+
+%format foldLF = "\Varid{fold_{LF}}"
+
+%format fibT = "\Varid{fib_T}"
+%format sumT = "\Varid{sum_T}"
+%format productT = "\Varid{product_T}"
+
+%format sumL = "\Varid{sum_L}"
+%format productL = "\Varid{product_L}"
+%format reverseL = "\Varid{reverse_L}"
+
+%format rangeL = "\Varid{range_L}"
+%format rangeT = "\Varid{range_{T}}"
+%format rangeT' = "\Varid{range_{TP}}"

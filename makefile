@@ -1,4 +1,4 @@
-TARG = fold-and-unfold
+TARG = folds-and-unfolds
 
 .PRECIOUS: %.tex %.pdf %.web
 
