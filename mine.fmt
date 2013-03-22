@@ -19,6 +19,8 @@
 
 %format * = " \times "
 
+%format Unit = " \mathbf{1} "
+%% %format Unit = " \mathbbm{1} "
 %format :* = " \times "
 %format :+ = " + "
 

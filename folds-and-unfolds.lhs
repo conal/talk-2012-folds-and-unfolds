@@ -67,9 +67,12 @@ This talk is a literate Haskell program.
 }
 
 > module FoldsAndUnfolds where
-> 
-> type (:+) = Either
-> type (:*) = (,)
+
+We'll use some non-standard (for Haskell) type notation:
+
+> type Unit  = ()
+> type (:+)  = Either
+> type (:*)  = (,)
 >
 > infixl 7 :*
 > infixl 6 :+
@@ -265,12 +268,12 @@ Why the asymmetry?
 
 }\framet{Playing with type isomorphisms}{
 
-< foldL  :: (a -> b -> b) -> b          -> ([a] -> b)
-<        =~ (a :* b -> b) -> b          -> ([a] -> b)
-<        =~ (a :* b -> b) -> (() -> b)  -> ([a] -> b)
-<        =~ (a :* b -> b) :* (() -> b)  -> ([a] -> b)
-<        =~ ((a :* b :+ ()) -> b)       -> ([a] -> b)
-<        =~ (Maybe (a :* b) -> b)       -> ([a] -> b)
+< foldL  :: (a -> b -> b) -> b            -> ([a] -> b)
+<        =~ (a :* b -> b) -> b            -> ([a] -> b)
+<        =~ (a :* b -> b) -> (Unit -> b)  -> ([a] -> b)
+<        =~ (a :* b -> b) :* (Unit -> b)  -> ([a] -> b)
+<        =~ ((a :* b :+ Unit) -> b)       -> ([a] -> b)
+<        =~ (Maybe (a :* b) -> b)         -> ([a] -> b)
 
 Why |Maybe (a :* b)|?
 
