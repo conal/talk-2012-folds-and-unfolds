@@ -1,8 +1,6 @@
 %% -*- latex -*-
 \documentclass[serif]{beamer}
 
-% \usetheme{Warsaw} 
-
 \usepackage{beamerthemesplit}
 
 \usepackage{graphicx}
@@ -28,7 +26,6 @@
 \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/105583982/}{March 21, 2013}}
 
 \nc\wpicture[2]{\includegraphics[width=#1]{pictures/#2}}
-% \nc\wpicture[2]{}
 
 \nc\wfig[2]{
 \begin{center}
@@ -37,25 +34,18 @@
 }
 \nc\fig[1]{\wfig{4in}{#1}}
 
-%% \nc\fb[1]{\fbox{#1\vspace{-2ex}}}
-
-\nc\usebg[1]{
-\usebackgroundtemplate{\wpicture{1.2\textwidth}{#1}}
-}
-
 \setlength{\itemsep}{2ex}
-
 \setlength{\parskip}{1ex}
 
-% \setlength{\blanklineskip}{0.66084ex}
 \setlength{\blanklineskip}{1.5ex}
+
+\nc\usebg[1]{\usebackgroundtemplate{\wpicture{1.2\textwidth}{#1}}}
 
 \begin{document}
 
 \frame{\titlepage
-% \usebg{origami_swan}
 \vspace{-0.2in}
-\wfig{2in}{origami/robert-langs-origami-bicurve-pot-13}
+\wfig{2in}{bicurve-pot}
 }
 
 \nc\framet[2]{\frame{\frametitle{#1}#2}}
@@ -103,23 +93,27 @@ On lists:
 > productL (a:as)  = a * productL as
 > 
 > rangeL :: Integer -> Integer -> [Integer]
-> rangeL l h  | l >= h     = []
+> rangeL l h  | l > h      = []
 >             | otherwise  = l : rangeL (succ l) h
 
 }\framet{Recursive functional programming}{
 
 On (binary leaf) trees:
 
-> data T a = L a | B (T a) (T a)
+> data T a = L a | B (T a) (T a) deriving Show
 
 > productT :: T Integer -> Integer
 > productT (L a)    = a
 > productT (B s t)  = productT s * productT t
-> 
+
 > rangeT :: Integer -> Integer -> T Integer
 > rangeT l h  | l == h     = L l
 >             | otherwise  = B (rangeT l m) (rangeT (m+1) h)
 >  where m = (l+h) `div` 2
+
+}\framet{Recursive functional programming?}{
+
+\wfig{3in}{bread-and-butter}
 
 }\framet{Structured functional programming}{
 
@@ -134,7 +128,7 @@ Gibbons,
 
 Identify commonly useful patterns, determine their properties, and apply them.
 
-}\framet{Catamorphisms (folds)}{
+}\framet{Folds (``catamorphisms'')}{
 
 Contract a structure \emph{down} to a single value.
 
@@ -156,7 +150,7 @@ For trees:
 
 < productT = foldT (*) id
 
-}\framet{Anamorphisms (unfolds)}{
+}\framet{Unfolds (``anamorphisms'')}{
 
 Expand a structure \emph{up} to a single value.
 
@@ -170,7 +164,7 @@ Lists:
 > rangeL' :: Integer :* Integer -> [Integer]
 > rangeL' = unfoldL g
 >  where
->    g (l,h)  | l >= h     = Nothing
+>    g (l,h)  | l > h      = Nothing
 >             | otherwise  = Just (l, (succ l, h))
 
 }\framet{Anamorphisms (unfolds)}{
@@ -359,29 +353,28 @@ Let's revisit our examples.
 > fact5 n = hylo h g (1,n)
 >  where
 >    g :: Range -> TF Integer Range
->    g (lo,hi) =
->      case lo `compare` hi of
->        GT  -> LF 1
->        EQ  -> LF lo
->        LT  -> let mid = (lo+hi) `div` 2 in
->                 BF (lo,mid) (mid+1,hi)
+>    g (lo,hi) =  case lo `compare` hi of               
+>                   GT  -> LF 1                         
+>                   EQ  -> LF lo                        
+>                   LT  -> let mid = (lo+hi) `div` 2 in 
+>                            BF (lo,mid) (mid+1,hi)     
 >    h :: TF Integer Integer -> Integer
 >    h (LF i)    = i
 >    h (BF u v)  = u * v
 
-Much more parallel-friendly!
+Parallel-friendly!
 
 }\framet{Another look and |fold| and |unfold|}{
 
 \begin{center}
 
 \begin{tikzcd}[column sep=10ex]
-  \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
+  \FFixF \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
   \FixF \uar{\unRoll} \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \hspace{4ex}
 \begin{tikzcd}[column sep=10ex]
-  \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \dar{\Roll} \\
+  \F a \rar{\fmapp{\unfold g}} \& \FFixF \dar{\Roll} \\
   a \uar{g} \rar[dashed]{\unfold g} \& \FixF
 \end{tikzcd}
 \end{center}
@@ -400,7 +393,8 @@ Much more parallel-friendly!
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  a \arrow[dashed,bend right]{rr}{\hylo g} \&  \& b
+  a % \arrow[dashed,bend right]{rr}{\hylo h\,g}
+    \arrow{rr}{\hylo h\,g}\& \& b
 \end{tikzcd}
 \end{center}
 
@@ -410,7 +404,8 @@ Much more parallel-friendly!
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  a \arrow[dashed,bend right]{rr}{\hylo g} \rar{\unfold g} \& \FixF \rar{\fold h}  \& b
+  a % \arrow[dashed,bend right]{rr}{\hylo h\,g}
+    \rar{\unfold g} \& \FixF \rar{\fold h}  \& b
 \end{tikzcd}
 \end{center}
 
@@ -420,8 +415,8 @@ Definition of |hylo|.
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \dar[shift left=0.7ex]{\Roll} \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  a \arrow[dashed,bend right]{rr}{\hylo g}
+  \F a \rar{\fmapp{\unfold g}} \& \FFixF \dar[shift left=0.7ex]{\Roll} \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
+  a % \arrow[dashed,bend right]{rr}{\hylo h\, g}
     \uar{g} \rar[dashed]{\unfold g} \& \FixF \uar[shift left=0.7ex]{\unRoll} \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \end{center}
@@ -432,8 +427,8 @@ By definitions of |fold| and |unfold|.
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  a \arrow[dashed,bend right]{rr}{\hylo g}
+  \F a \rar{\fmapp{\unfold g}} \& \FFixF \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
+  a % \arrow[dashed,bend right]{rr}{\hylo h\, g}
     \uar{g} \rar[dashed]{\unfold g} \& \FixF \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \end{center}
@@ -445,7 +440,7 @@ Since |unRoll| and |Roll| are inverses.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \arrow{rr}{\fmapp{\fold h \comp \unfold g}} \& \& \F b \dar{h} \\
-  a \arrow[dashed,bend right]{rr}{\hylo g}
+  a % \arrow[dashed,bend right]{rr}{\hylo h\, g}
     \uar{g} \arrow{rr}{\fold h \comp \unfold g} \& \& b
 \end{tikzcd}
 \end{center}
@@ -466,11 +461,19 @@ Directly recursive!
 
 }\framet{|fold| and |unfold| via |hylo|}{
 
-> unfold' :: Functor f => (a -> f a) -> (a -> Fix f)
-> unfold' g = hylo Roll g
-> 
-> fold' :: Functor f => (f b -> b) -> (Fix f -> b)
-> fold' h = hylo h unRoll
+|hylo| subsumes both |fold| and |unfold|:
+
+< unfold g  = hylo Roll g
+<
+< fold h    = hylo h unRoll
+
+since
+
+< hylo h g == fold h . unfold g
+
+and
+
+< fold Roll == id == unfold unRoll
 
 }\framet{Summary}{
 
@@ -478,18 +481,18 @@ Directly recursive!
 \begin{itemize}
 \item \emph{Fold} and \emph{unfold} are structured replacements for the ``assembly language'' of recursive definitions.
 
-\item Unifying view of |fold| and |unfold| across data types:
+\item Unifying view of |fold| \& |unfold| across data types via
 \emph{functor fixpoints}.
 
-\item Recursive programs have a systematic translation to |unfold| and |fold| (``forestation'').
+\item Recursive programs have a systematic translation to |unfold| and |fold|.
 
 \item The translation reveals parallelism clearly and simply.
 
 \end{itemize}
 \end{minipage}
 % \hspace{1ex}
-\begin{minipage}{0.2\textwidth}
-\wpicture{2in}{origami/yoda}
+\begin{minipage}[c]{0.2\textwidth}
+\wpicture{2in}{yoda}
 \end{minipage}
 
 }\framet{A cautionary tale}{
@@ -499,14 +502,15 @@ Directly recursive!
 }
 
 
-\nc{\pcredit}[3]{\item \href{#1}{\wpicture{0.75in}{#3}}: #2}
+\nc{\pcredit}[3]{\item \href{#1}{\wpicture{0.75in}{#3}} #2}
 
 \framet{Picture credits}{
 
 \begin{itemize}
 
-\pcredit{https://popularkinetics.wordpress.com/2008/07/24/the-art-and-science-of-folding-paper/}{Robert Lang's Origami BiCurve Pot 13}{origami/robert-langs-origami-bicurve-pot-13}
-\pcredit{http://imgbit.com/i313}{unknown}{origami/yoda.jpg}
+\pcredit{https://popularkinetics.wordpress.com/2008/07/24/the-art-and-science-of-folding-paper/}{Robert Lang's Origami BiCurve Pot 13}{bicurve-pot}
+\pcredit{http://www.mofga.org}{Maine Organic Farmers}{bread-and-butter}
+\pcredit{http://imgbit.com/i313}{unknown}{yoda.jpg}
 \pcredit{https://xkcd.com/292/}{Randall Munroe (xkcd)}{goto-raptor-xkcd}
 
 \end{itemize}
