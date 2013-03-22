@@ -375,7 +375,7 @@ Much more parallel-friendly!
 
 \begin{center}
 
-\begin{tikzcd}[column sep=8ex]
+\begin{tikzcd}[column sep=10ex]
   \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
   \FixF \uar{\unRoll} \rar[dashed]{\fold h} \& b
 \end{tikzcd}
@@ -396,11 +396,11 @@ Much more parallel-friendly!
 
 }\framet{Another look and |hylo|}{
 
-\vspace{8ex}
+\vspace{5ex}
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  a \rar{\hylo h\, g} \& b
+  a \arrow[dashed,bend right]{rr}{\hylo g} \&  \& b
 \end{tikzcd}
 \end{center}
 
@@ -410,7 +410,7 @@ Much more parallel-friendly!
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  a \rar{\unfold g} \& \FixF \rar{\fold h} \& b
+  a \arrow[dashed,bend right]{rr}{\hylo g} \rar{\unfold g} \& \FixF \rar{\fold h}  \& b
 \end{tikzcd}
 \end{center}
 
@@ -421,7 +421,8 @@ Definition of |hylo|.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \dar[shift left=0.7ex]{\Roll} \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  a \uar{g} \rar{\unfold g} \& \FixF \uar[shift left=0.7ex]{\unRoll} \rar{\fold h} \& b
+  a \arrow[dashed,bend right]{rr}{\hylo g}
+    \uar{g} \rar[dashed]{\unfold g} \& \FixF \uar[shift left=0.7ex]{\unRoll} \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \end{center}
 
@@ -432,7 +433,8 @@ By definitions of |fold| and |unfold|.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \F (\FixF) \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  a \uar{g} \rar{\unfold g} \& \FixF \rar{\fold h} \& b
+  a \arrow[dashed,bend right]{rr}{\hylo g}
+    \uar{g} \rar[dashed]{\unfold g} \& \FixF \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \end{center}
 
@@ -441,9 +443,10 @@ Since |unRoll| and |Roll| are inverses.
 }\framet{Another look and |hylo|}{
 
 \begin{center}
-\begin{tikzcd}[column sep=20ex]
-  \F a \rar{\fmapp{\fold h \comp \unfold g}} \rar{} \& \F b \dar{h} \\
-  a \uar{g} \rar{\fold h \comp \unfold g} \rar{} \& b
+\begin{tikzcd}[column sep=10ex]
+  \F a \arrow{rr}{\fmapp{\fold h \comp \unfold g}} \& \& \F b \dar{h} \\
+  a \arrow[dashed,bend right]{rr}{\hylo g}
+    \uar{g} \arrow{rr}{\fold h \comp \unfold g} \& \& b
 \end{tikzcd}
 \end{center}
 
@@ -452,9 +455,9 @@ By the |Functor| law: |fmap v . fmap u == fmap (v . u)|.
 }\framet{Another look and |hylo|}{
 
 \begin{center}
-\begin{tikzcd}[column sep=12ex]
-  \F a \rar{\fmapp{\hylo h\, g}} \rar{} \& \F b \dar{h} \\
-  a \uar{g} \rar{\hylo h\, g} \rar{} \& b
+\begin{tikzcd}[column sep=10ex]
+  \F a \arrow{rr}{\fmapp{\hylo h\, g}} \& \& \F b \dar{h} \\
+  a \uar{g} \arrow{rr}{\hylo h\, g} \& \& b
 \end{tikzcd}
 \end{center}
 
