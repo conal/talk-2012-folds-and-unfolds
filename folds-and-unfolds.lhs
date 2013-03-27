@@ -68,7 +68,7 @@ This talk is a literate Haskell program.
 
 > module FoldsAndUnfolds where
 
-We'll use some non-standard (for Haskell) type notation:
+I'll use some non-standard (for Haskell) type notation:
 
 > type Unit  = ()
 > type (:+)  = Either
