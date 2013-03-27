@@ -367,28 +367,27 @@ Let's revisit our examples.
 
 Parallel-friendly!
 
-}\framet{Another look and |fold| and |unfold|}{
+}\framet{Another look and |unfold| and |fold|}{
 
 \begin{center}
-
-\begin{tikzcd}[column sep=10ex]
-  \FFixF \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  \FixF \uar{\unRoll} \rar[dashed]{\fold h} \& b
-\end{tikzcd}
-\hspace{4ex}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \FFixF \dar{\Roll} \\
   a \uar{g} \rar[dashed]{\unfold g} \& \FixF
+\end{tikzcd}
+\hspace{4ex}
+\begin{tikzcd}[column sep=10ex]
+  \FFixF \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
+  \FixF \uar{\unRoll} \rar[dashed]{\fold h} \& b
 \end{tikzcd}
 \end{center}
 
 < newtype Fix f = Roll { unRoll :: f (Fix f) }
 < 
-< fold :: Functor f => (f b -> b) -> (Fix f -> b)
-< fold h = h . fmap (fold h) . unRoll
-< 
 < unfold :: Functor f => (a -> f a) -> (a -> Fix f)
 < unfold g = Roll . fmap (unfold g) . g
+< 
+< fold :: Functor f => (f b -> b) -> (Fix f -> b)
+< fold h = h . fmap (fold h) . unRoll
 
 }\framet{Another look and |hylo|}{
 
