@@ -11,7 +11,8 @@ Unused/
 *.pdf
 *.ptb
 *.snm
-*.tex
 *.toc
+
+folds-and-unfolds.tex
 
 web-token
