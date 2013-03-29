@@ -127,7 +127,7 @@ On (binary leaf) trees:
 Jeremy
 Gibbons,
 \emph{\href{http://www.cs.ox.ac.uk/publications/publication2335-abstract.html}{Origami programming}}
-\end{flushright} 
+\end{flushright}
 
 Identify commonly useful patterns, determine their properties, and apply them.
 
@@ -256,12 +256,12 @@ More explicitly hylomorphic:
 Summary of |fold| and |unfold|:
 
 < foldL    :: (a -> b -> b) -> b -> ([a] -> b)
-<          
+< 
 < unfoldL  :: (b -> Maybe (a :* b)) -> (b -> [a])
 < 
 < SPACE
 < foldT    :: (b -> b -> b) -> (a -> b) -> (T a -> b)
-<          
+< 
 < unfoldT  :: (b -> a :+ b :* b) -> (b -> T a)
 
 Why the asymmetry?
@@ -351,16 +351,16 @@ Let's revisit our examples.
 }\framet{Factorial via tree hylo}{
 
 > type Range = Integer :* Integer
-> 
+>
 > fact4 :: Integer -> Integer
 > fact4 n = hylo h g (1,n)
 >  where
 >    g :: Range -> TF Integer Range
->    g (lo,hi) =  case lo `compare` hi of               
->                   GT  -> LF 1                         
->                   EQ  -> LF lo                        
->                   LT  -> let mid = (lo+hi) `div` 2 in 
->                            BF (lo,mid) (mid+1,hi)     
+>    g (lo,hi) =  case lo `compare` hi of
+>                   GT  -> LF 1
+>                   EQ  -> LF lo
+>                   LT  -> let mid = (lo+hi) `div` 2 in
+>                            BF (lo,mid) (mid+1,hi)
 >    h :: TF Integer Integer -> Integer
 >    h (LF i)    = i
 >    h (BF u v)  = u * v
