@@ -352,8 +352,8 @@ Let's revisit our examples.
 
 > type Range = Integer :* Integer
 > 
-> fact5 :: Integer -> Integer
-> fact5 n = hylo h g (1,n)
+> fact4 :: Integer -> Integer
+> fact4 n = hylo h g (1,n)
 >  where
 >    g :: Range -> TF Integer Range
 >    g (lo,hi) =  case lo `compare` hi of               
