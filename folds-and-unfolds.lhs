@@ -23,7 +23,8 @@
 \author{\href{http://conal.net}{Conal Elliott}}
 \institute{\href{http://tabula.com/}{Tabula}}
 % Abbreviate date/venue to fit in infolines space
-\date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/105583982/}{March 21, 2013}}
+%% \date{\href{http://www.meetup.com/haskellhackersathackerdojo/events/105583982/}{March 21, 2013}}
+\date{Spring, 2013}
 
 \nc\wpicture[2]{\includegraphics[width=#1]{pictures/#2}}
 
@@ -120,6 +121,8 @@ On (binary leaf) trees:
 
 }\framet{Structured functional programming}{
 
+\ 
+
 \begin{quotation}
 ... recursive equations are the ``assembly language'' of functional programming, and direct recursion the \texttt{goto}.
 \end{quotation}
@@ -129,7 +132,15 @@ Gibbons,
 \emph{\href{http://www.cs.ox.ac.uk/publications/publication2335-abstract.html}{Origami programming}}
 \end{flushright}
 
-Identify commonly useful patterns, determine their properties, and apply them.
+\ 
+
+A structured alternative:
+\begin{itemize}
+\item identify commonly useful patterns,
+\item determine their properties, and
+\item apply the patterns and properties.
+\end{itemize}
+
 
 }\framet{Folds (``catamorphisms'')}{
 
@@ -170,7 +181,7 @@ Lists:
 >    g (l,h)  | l > h      = Nothing
 >             | otherwise  = Just (l, (succ l, h))
 
-}\framet{Anamorphisms (unfolds)}{
+}\framet{Unfolds (``anamorphisms'')}{
 
 Trees:
 
@@ -216,6 +227,8 @@ More explicit:
 >  where
 >    g 0  = Nothing
 >    g n  = Just (n,n-1)
+
+This combination of |unfold| and |fold| is called a ``hylomorphism''.
 
 }\framet{Fibonacci}{
 
@@ -300,7 +313,45 @@ Now the duality emerges:
 
 Similarly for tree fold and unfold.
 
-}\framet{General regular algebraic data types}{
+}\framet{List and tree |unfold| and |fold| -- pictures}{
+\begin{center}
+\begin{tikzcd}
+  \Maybe (a \times b) \&  \\
+  b \arrow{u}{g} \rar[swap]{\unfoldL g} \& \List{a}
+\end{tikzcd}
+\hspace{6ex}
+\begin{tikzcd}
+  {} \& \Maybe (a \times b) \arrow{d}{h} \\
+  \List{a} \arrow[swap]{r}{\foldL h} \& b
+\end{tikzcd}
+\vspace{6ex}
+\begin{tikzcd}
+  a + b \times b \&  \\
+  b \arrow[swap]{u}{g} \rar{\unfoldT g} \& \Tree{a}
+\end{tikzcd}
+\hspace{6ex}
+\begin{tikzcd}
+  {} \& a + b \times b \arrow{d}{h} \\
+  \Tree{a} \arrow[swap]{r}{\foldT h} \& b
+\end{tikzcd}
+\end{center}
+}\framet{General regular algebraic data types -- pictures}{
+
+Build up from ``base functor'' $F$ to fixpoint $\FixF$:
+
+\begin{center}
+\begin{tikzcd}
+  \F b \&  \\
+  b \arrow{u}{g} \rar[swap]{\unfold g} \& \FixF
+\end{tikzcd}
+\hspace{6ex}
+\begin{tikzcd}
+  {} \& \F b \arrow{d}{h} \\
+  \FixF \arrow[swap]{r}{\fold h} \& b
+\end{tikzcd}
+\end{center}
+
+}\framet{General regular algebraic data types -- Haskell}{
 
 Build up from ``base functor'' |f|:
 
@@ -372,12 +423,12 @@ Parallel-friendly!
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \FFixF \dar{\Roll} \\
-  a \uar{g} \rar[dashed]{\unfold g} \& \FixF
+  a \uar{g} \rar[dashed,swap]{\unfold g} \& \FixF
 \end{tikzcd}
 \hspace{4ex}
 \begin{tikzcd}[column sep=10ex]
   \FFixF \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  \FixF \uar{\unRoll} \rar[dashed]{\fold h} \& b
+  \FixF \uar{\unRoll} \rar[dashed,swap]{\fold h} \& b
 \end{tikzcd}
 \end{center}
 
@@ -395,19 +446,16 @@ Parallel-friendly!
 
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  a % \arrow[dashed,bend right]{rr}{\hylo h\,g}
-    \arrow{rr}{\hylo h\,g}\& \& b
+  a % \arrow[dashed,swap,bend right]{rr}{\hylo h\,g}
+    \arrow[dashed]{rr}{\hylo h\,g}\& \& b
 \end{tikzcd}
 \end{center}
 
 }\framet{Another look and |hylo|}{
-
 \vspace{8ex}
-
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
-  a % \arrow[dashed,bend right]{rr}{\hylo h\,g}
-    \rar{\unfold g} \& \FixF \rar{\fold h}  \& b
+  a \rar{\unfold g} \& \FixF \rar{\fold h}  \& b
 \end{tikzcd}
 \end{center}
 
@@ -418,8 +466,8 @@ Definition of |hylo|.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \FFixF \dar[shift left=0.7ex]{\Roll} \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  a % \arrow[dashed,bend right]{rr}{\hylo h\, g}
-    \uar{g} \rar[dashed]{\unfold g} \& \FixF \uar[shift left=0.7ex]{\unRoll} \rar[dashed]{\fold h} \& b
+  a % \arrow[dashed,swap,bend right]{rr}{\hylo h\, g}
+    \uar{g} \rar[dashed,swap]{\unfold g} \& \FixF \uar[shift left=0.7ex]{\unRoll} \rar[dashed,swap]{\fold h} \& b
 \end{tikzcd}
 \end{center}
 
@@ -430,8 +478,8 @@ By definitions of |fold| and |unfold|.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \rar{\fmapp{\unfold g}} \& \FFixF \rar{\fmapp{\fold h}} \& \F b \dar{h} \\
-  a % \arrow[dashed,bend right]{rr}{\hylo h\, g}
-    \uar{g} \rar[dashed]{\unfold g} \& \FixF \rar[dashed]{\fold h} \& b
+  a % \arrow[dashed,swap,bend right]{rr}{\hylo h\, g}
+    \uar{g} \rar[dashed,swap]{\unfold g} \& \FixF \rar[dashed,swap]{\fold h} \& b
 \end{tikzcd}
 \end{center}
 
@@ -442,8 +490,8 @@ Since |unRoll| and |Roll| are inverses.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \arrow{rr}{\fmapp{\fold h \comp \unfold g}} \& \& \F b \dar{h} \\
-  a % \arrow[dashed,bend right]{rr}{\hylo h\, g}
-    \uar{g} \arrow{rr}{\fold h \comp \unfold g} \& \& b
+  a % \arrow[dashed,swap,bend right]{rr}{\hylo h\, g}
+    \uar{g} \arrow[dashed,swap]{rr}{\fold h \comp \unfold g} \& \& b
 \end{tikzcd}
 \end{center}
 
@@ -454,13 +502,45 @@ By the |Functor| law: |fmap v . fmap u == fmap (v . u)|.
 \begin{center}
 \begin{tikzcd}[column sep=10ex]
   \F a \arrow{rr}{\fmapp{\hylo h\, g}} \& \& \F b \dar{h} \\
-  a \uar{g} \arrow{rr}{\hylo h\, g} \& \& b
+  a \uar{g} \arrow[dashed,swap]{rr}{\hylo h\, g} \& \& b
 \end{tikzcd}
 \end{center}
 
 Definition of |hylo|.
 Directly recursive!
 
+}\framet{All together}{
+\begin{center}
+\begin{tikzcd}[column sep=15ex]
+  \F a \arrow[bend left=50]{rr}{\fmapp{\hylo h \, g}}
+       \arrow[bend left=25]{rr}{\fmapp{\fold h \comp \unfold g}}
+       \arrow{r}{\fmapp{\unfold g}} \& \FFixF \arrow[shift left=0.7ex]{d}{\Roll} \arrow{r}{\fmapp{\fold h}} \& \F b \dar{h} \\
+  a \arrow[dashed,swap,bend right=50]{rr}{\hylo h\, g}
+    \arrow{u}{g} \arrow[dashed,swap]{r}{\unfold g} \& \FixF \arrow[shift left=0.7ex]{u}{\unRoll} \arrow[dashed,swap]{r}{\fold h} \& b
+\end{tikzcd}
+\end{center}
+}\framet{Reversed}{
+\begin{center}
+\begin{tikzcd}[column sep=15ex]
+     \F b   
+  \& \FFixF 
+            \arrow[swap]{l}{\fmapp{\fold h}}
+            \arrow[shift left=0.7ex]{d}{\Roll}
+  \& \F a   
+            \arrow[swap]{l}{\fmapp{\unfold g}}
+            \arrow[bend right=50,swap]{ll}{\fmapp{\hylo h \, g}}
+            \arrow[bend right=25,swap]{ll}{\fmapp{\fold h \comp \unfold g}}
+            \dar{h}
+\\   b      
+            \arrow{u}{g}
+  \& \FixF  
+            \arrow[dashed]{l}{\unfold g}
+            \arrow[shift left=0.7ex]{u}{\unRoll}
+  \& a
+            \arrow[dashed]{l}{\fold h}
+            \arrow[dashed,bend left=50]{ll}{\hylo h\, g}
+\end{tikzcd}
+\end{center}
 }\framet{|fold| and |unfold| via |hylo|}{
 
 |hylo| subsumes both |fold| and |unfold|:
@@ -499,7 +579,7 @@ and
 
 }\framet{A cautionary tale}{
 
-\fig{goto-raptor-xkcd}
+\wfig{4.7in}{goto-raptor-xkcd}
 
 }
 
