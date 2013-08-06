@@ -144,7 +144,7 @@ A structured alternative:
 
 }\framet{Folds (``catamorphisms'')}{
 
-Contract a structure \emph{down} to a single value.
+Contract a structure \emph{down to} a single value.
 
 For lists:
 
@@ -166,7 +166,7 @@ For trees:
 
 }\framet{Unfolds (``anamorphisms'')}{
 
-Expand a structure \emph{up} to a single value.
+Expand a structure \emph{up from} a single value.
 
 Lists:
 
